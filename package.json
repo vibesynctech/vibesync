@@ -1,0 +1,238 @@
+{
+  "name": "vibesync",
+  "displayName": "VibeSync — AI Light Sync",
+  "description": "Sync your room lights with your AI coding assistant state. Supports Tapo, Yeelight, LIFX, Govee, and Philips Hue.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "author": "vibesynctech",
+  "publisher": "vibesynctech",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vibesynctech/vibesync"
+  },
+  "homepage": "https://github.com/vibesynctech/vibesync",
+  "bugs": {
+    "url": "https://github.com/vibesynctech/vibesync/issues"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "lights",
+    "tapo",
+    "smart home",
+    "vibesync",
+    "copilot",
+    "cursor"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "extensionDependencies": [
+    "vscode.github-authentication"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "vibeSync.toggle",
+        "title": "VibeSync: Toggle On/Off"
+      },
+      {
+        "command": "vibeSync.testLights",
+        "title": "VibeSync: Run Light Test (cycles all 8 states)"
+      },
+      {
+        "command": "vibeSync.showStatus",
+        "title": "VibeSync: Show Current State"
+      },
+      {
+        "command": "vibeSync.focusTimeTracker",
+        "title": "VibeSync: Show Time Tracker"
+      },
+      {
+        "command": "vibeSync.seedTestData",
+        "title": "VibeSync: Seed Fake Time Data (Test)"
+      },
+      {
+        "command": "vibeSync.clearTestData",
+        "title": "VibeSync: Clear All Time Data"
+      },
+      {
+        "command": "vibeSync.signInGitHub",
+        "title": "VibeSync: Sign In with GitHub"
+      },
+      {
+        "command": "vibeSync.signOutGitHub",
+        "title": "VibeSync: Sign Out of GitHub"
+      },
+      {
+        "command": "vibeSync.debugGitHub",
+        "title": "VibeSync: Debug GitHub (Diagnostic)"
+      },
+      {
+        "command": "vibeSync.openSettings",
+        "title": "VibeSync: Settings",
+        "icon": "$(gear)"
+      },
+      {
+        "command": "vibeSync.openGuide",
+        "title": "VibeSync: Guide",
+        "icon": "$(book)"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "vibeSyncTracker",
+          "title": "VibeSync",
+          "icon": "$(flame)"
+        }
+      ]
+    },
+    "views": {
+      "vibeSyncTracker": [
+        {
+          "id": "vibeSync.timeCalendar",
+          "name": "vibesync.tech",
+          "type": "webview"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "vibeSync.openGuide",
+          "when": "view == vibeSync.timeCalendar",
+          "group": "navigation"
+        },
+        {
+          "command": "vibeSync.openSettings",
+          "when": "view == vibeSync.timeCalendar",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "VibeSync",
+      "properties": {
+        "vibeSync.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable or disable VibeSync light sync"
+        },
+        "vibeSync.aiTool": {
+          "type": "string",
+          "enum": [
+            "github-copilot",
+            "cursor",
+            "windsurf",
+            "antigravity",
+            "continue",
+            "claude-code",
+            "other"
+          ],
+          "enumDescriptions": [
+            "GitHub Copilot + Copilot Chat",
+            "Cursor IDE (built-in Composer/Chat)",
+            "Windsurf / Codeium",
+            "Antigravity IDE",
+            "Continue.dev",
+            "Claude Code CLI",
+            "Other / Generic (velocity detection only)"
+          ],
+          "default": "claude-code",
+          "description": "Which AI coding tool you are using"
+        },
+        "vibeSync.lightBrand": {
+          "type": "string",
+          "enum": [
+            "tapo",
+            "yeelight",
+            "philips-hue",
+            "lifx",
+            "govee"
+          ],
+          "enumDescriptions": [
+            "TP-Link Tapo (L900, L920, L930, L510, L530)",
+            "Yeelight (coming soon)",
+            "Philips Hue (coming soon)",
+            "LIFX (coming soon)",
+            "Govee (coming soon)"
+          ],
+          "default": "tapo",
+          "description": "Your smart light brand"
+        },
+        "vibeSync.tapoIp": {
+          "type": "string",
+          "default": "",
+          "description": "Local IP address of your Tapo light (e.g. 192.168.1.87)"
+        },
+        "vibeSync.tapoEmail": {
+          "type": "string",
+          "default": "",
+          "description": "Your Tapo account email"
+        },
+        "vibeSync.tapoPassword": {
+          "type": "string",
+          "default": "",
+          "description": "Your Tapo account password"
+        },
+        "vibeSync.theme": {
+          "type": "string",
+          "default": "default",
+          "description": "Active theme ID. Use 'default' for built-in theme, or a custom theme ID."
+        },
+        "vibeSync.screenGlowEnabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable screen glow — changes VS Code border/status bar colors based on AI state (alternative to physical RGB lights)"
+        },
+        "vibeSync.soundEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable sound alerts for AI coding states"
+        },
+        "vibeSync.soundPack": {
+          "type": "string",
+          "default": "default",
+          "description": "Active sound pack ID. Use 'default' for built-in sounds, or a custom sound pack ID."
+        },
+        "vibeSync.mascotEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show animated mascot character in the sidebar"
+        },
+        "vibeSync.mascotTheme": {
+          "type": "string",
+          "default": "default",
+          "description": "Mascot character theme. Use 'default' for built-in chibi characters."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "build": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node --sourcemap",
+    "package": "vsce package",
+    "lint": "eslint src --ext ts",
+    "postinstall": "node scripts/patch-tapo.mjs"
+  },
+  "dependencies": {
+    "tp-link-tapo-connect": "^2.0.14",
+    "ws": "^8.19.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "esbuild": "^0.20.0",
+    "lottie-web": "^5.13.0",
+    "typescript": "^5.3.0"
+  }
+}
