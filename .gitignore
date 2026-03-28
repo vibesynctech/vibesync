@@ -10,7 +10,7 @@ dist/
 Thumbs.db
 
 # IDE / Editor
-.vscode/
+.vscode/settings.json
 .idea/
 *.swp
 *.swo
