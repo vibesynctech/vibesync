@@ -6,15 +6,14 @@ import { log } from '../utils/logger.js';
 
 /**
  * Cross-platform audio playback.
- * - macOS: afplay CLI
- * - Linux: paplay CLI
- * - Windows: Hidden webview with HTML5 <audio> element (supports MP3 + volume)
+ * - macOS: afplay CLI (built-in, supports MP3/WAV + volume)
+ * - Linux: paplay CLI (PulseAudio, supports WAV + volume)
+ * - Windows: PowerShell -STA + WPF MediaPlayer (headless, supports MP3/WAV + volume)
  *
  * Kill-previous pattern: each play() kills any running sound first.
  */
 export class SoundPlayer {
   private currentProcess: ChildProcess | null = null;
-  private webviewPanel: vscode.WebviewPanel | null = null;
 
   constructor(private readonly context: vscode.ExtensionContext) {}
 
@@ -45,51 +44,6 @@ export class SoundPlayer {
     return null;
   }
 
-  /** Get or create the hidden webview for Windows audio playback */
-  private getOrCreateWebview(): vscode.WebviewPanel {
-    if (this.webviewPanel) return this.webviewPanel;
-
-    const soundsMediaUri = vscode.Uri.joinPath(
-      vscode.Uri.file(this.extensionPath),
-      'media',
-      'sounds'
-    );
-    const customSoundsUri = vscode.Uri.file(
-      path.join(this.globalStoragePath, 'sounds')
-    );
-
-    this.webviewPanel = vscode.window.createWebviewPanel(
-      'vibeSync.soundPlayer',
-      'VibeSync Sound Player',
-      { viewColumn: vscode.ViewColumn.One, preserveFocus: true },
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        localResourceRoots: [soundsMediaUri, customSoundsUri],
-      }
-    );
-
-    this.webviewPanel.webview.html = `<!DOCTYPE html><html><body>
-      <audio id="a"></audio>
-      <script>
-        const a = document.getElementById('a');
-        window.addEventListener('message', e => {
-          const msg = e.data;
-          if (msg.stop) { a.pause(); a.src = ''; return; }
-          a.src = msg.src;
-          a.volume = Math.max(0, Math.min(1, msg.volume / 100));
-          a.play().catch(() => {});
-        });
-      </script>
-    </body></html>`;
-
-    this.webviewPanel.onDidDispose(() => {
-      this.webviewPanel = null;
-    });
-
-    return this.webviewPanel;
-  }
-
   /** Play a sound file. Kills any currently-playing sound first. */
   play(soundId: string, volume: number): void {
     this.stop();
@@ -108,10 +62,20 @@ export class SoundPlayer {
         const paVol = Math.round((vol / 100) * 65536);
         this.currentProcess = spawn('paplay', ['--volume', String(paVol), filePath]);
       } else if (process.platform === 'win32') {
-        // Windows: hidden webview with HTML5 <audio> (supports MP3 + volume)
-        const panel = this.getOrCreateWebview();
-        const fileUri = panel.webview.asWebviewUri(vscode.Uri.file(filePath));
-        void panel.webview.postMessage({ src: fileUri.toString(), volume: vol });
+        // PowerShell -STA + WPF MediaPlayer: headless MP3/WAV playback, no window
+        const vol01 = (vol / 100).toFixed(3);
+        const fileUri = 'file:///' + filePath.replace(/\\/g, '/');
+        const psFileUri = fileUri.replace(/"/g, '`"');
+        const ps = [
+          'Add-Type -AssemblyName PresentationCore',
+          '$p=[System.Windows.Media.MediaPlayer]::new()',
+          `$p.Open([System.Uri]::new("${psFileUri}"))`,
+          `$p.Volume=${vol01}`,
+          'Start-Sleep -Milliseconds 500',
+          '$p.Play()',
+          'Start-Sleep -Seconds 30',
+        ].join(';');
+        this.currentProcess = spawn('powershell.exe', ['-STA', '-NoProfile', '-Command', ps]);
       }
 
       // Swallow errors silently (no audio output, missing binary, etc.)
@@ -132,14 +96,9 @@ export class SoundPlayer {
       this.currentProcess.kill();
       this.currentProcess = null;
     }
-    if (process.platform === 'win32' && this.webviewPanel) {
-      void this.webviewPanel.webview.postMessage({ stop: true });
-    }
   }
 
   dispose(): void {
     this.stop();
-    this.webviewPanel?.dispose();
-    this.webviewPanel = null;
   }
 }
