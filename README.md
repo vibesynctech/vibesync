@@ -24,11 +24,12 @@ VibeSync is a VS Code extension that turns AI-assisted coding into an immersive 
 
 ## Install
 
-- **VS Code / Cursor / Antigravity:** Search `vibesync` in the Extensions panel (`Ctrl+Shift+X`) and look for **"VibeSync — AI Light Sync"** by `vibesynctech`
-- **Direct link:** [Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights)
+- **VS Code:** Search `vibesync` in the Extensions panel (`Ctrl+Shift+X`) and look for **"VibeSync — AI Light Sync"** by `vibesynctech`
+- **VS Code Marketplace:** [Install directly](https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights)
+- **Antigravity / Cursor / Windsurf:** Search `vibesync` in Extensions — also available on [Open VSX](https://open-vsx.org/extension/vibesynctech/vibesync-lights)
 - **Manual:** Download `.vsix` from [GitHub Releases](https://github.com/vibesynctech/vibesync/releases) → `Cmd+Shift+P` → "Install from VSIX"
 
-Extensions auto-update by default in VS Code. To make sure: Settings → search "auto update" → set **Extensions: Auto Update** to `true`.
+Extensions auto-update by default. To make sure: Settings → search "auto update" → set **Extensions: Auto Update** to `true`.
 
 ## Quick Start
 
