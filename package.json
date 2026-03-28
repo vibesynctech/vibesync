@@ -5,6 +5,7 @@
   "version": "1.0.3",
   "license": "MIT",
   "author": "vibesynctech",
+  "icon": "vibesynclogo128.png",
   "publisher": "vibesynctech",
   "repository": {
     "type": "git",
