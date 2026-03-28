@@ -535,7 +535,9 @@ export class ClaudeCodeSignal implements vscode.Disposable {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) return null;
     const workspacePath = workspaceFolders[0].uri.fsPath;
-    return workspacePath.replace(/\//g, '-');
+    return workspacePath
+        .replace(/^([A-Z]):/, (_, drive: string) => drive.toLowerCase() + ':')  // C: → c:
+        .replace(/[:\\/_ ]/g, '-');                                              // all separators → dash
   }
 
   private findProjectDir(): string | null {

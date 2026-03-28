@@ -53,9 +53,10 @@ export class SoundPlayer {
         this.currentProcess = spawn('paplay', ['--volume', String(paVol), filePath]);
       } else if (process.platform === 'win32') {
         // PowerShell [Media.SoundPlayer] — no volume control on Windows
+        const escapedPath = filePath.replace(/'/g, "''");
         this.currentProcess = spawn('powershell', [
           '-NoProfile', '-Command',
-          `(New-Object Media.SoundPlayer '${filePath}').PlaySync()`,
+          `(New-Object Media.SoundPlayer "${escapedPath}").PlaySync()`,
         ]);
       }
 

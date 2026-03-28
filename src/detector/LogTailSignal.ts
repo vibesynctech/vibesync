@@ -185,13 +185,9 @@ export class LogTailSignal implements vscode.Disposable {
   }
 
   private findLatestLogFile(): string | null {
-    const basePath = path.join(
-      os.homedir(),
-      'Library',
-      'Application Support',
-      'Antigravity',
-      'logs'
-    );
+    const basePath = process.platform === 'win32'
+      ? path.join(os.homedir(), 'AppData', 'Roaming', 'Antigravity', 'logs')
+      : path.join(os.homedir(), 'Library', 'Application Support', 'Antigravity', 'logs');
 
     if (!fs.existsSync(basePath)) {
       log('[LogTail] Antigravity logs folder not found');

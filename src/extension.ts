@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { exec } from 'child_process';
 import { initLogger, log, logError } from './utils/logger.js';
 import { Settings } from './config/Settings.js';
 import { TapoController } from './lights/TapoController.js';
@@ -255,10 +254,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     }
   );
 
-  // ─── VALIDATION TESTS (temporary) ─────────────────────────────────────────
-  testNetworkPulse();
-  testSelectionSpy(context);
-
   log(`VibeSync activated. Theme: ${settings.theme}, AI tool: ${settings.aiTool}`);
 }
 
@@ -285,45 +280,4 @@ async function connectWithFeedback(tapo: TapoController, settings: Settings): Pr
   } catch (err) {
     logError('Tapo connection failed', err);
   }
-}
-
-// ─── VALIDATION TESTS (temporary — remove after testing) ──────────────────
-
-/**
- * Test 1: Network Wiretap — checks if VS Code has active network connections.
- * Should spam "[NETWORK] AI is talking..." while agent is generating,
- * and go silent when it's done.
- */
-function testNetworkPulse(): void {
-  setInterval(() => {
-    exec('lsof -i -n -P | grep "Code" | grep "ESTABLISHED"', (_err, stdout) => {
-      if (stdout) {
-        console.log('[NETWORK] AI is talking to the internet!');
-      }
-    });
-  }, 1000);
-}
-
-/**
- * Test 2: Selection Spy — detects whether you're typing in code or chat.
- * Should log 🔵 when clicking/typing in code editor,
- * and 🔴 when typing in the Antigravity chat panel.
- */
-function testSelectionSpy(context: vscode.ExtensionContext): void {
-  let lastEditorClick = 0;
-
-  context.subscriptions.push(
-    vscode.window.onDidChangeTextEditorSelection(() => {
-      lastEditorClick = Date.now();
-      console.log('[FOCUS] 🔵 You are DEFINITELY in the Code Editor');
-    })
-  );
-
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeTextDocument(() => {
-      if (Date.now() - lastEditorClick > 1000) {
-        console.log('[FOCUS] 🔴 You must be typing in the Chat!');
-      }
-    })
-  );
 }
