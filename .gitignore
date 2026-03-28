@@ -33,3 +33,6 @@ npm-debug.log*
 
 # Test artifacts
 vibe-test.txt
+
+# Personal docs
+PUBLISHING.md

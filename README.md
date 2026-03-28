@@ -22,10 +22,17 @@ VibeSync is a VS Code extension that turns AI-assisted coding into an immersive 
 - **Time Tracker** — Calendar heatmap, daily coding hours, commit counts, and notes
 - **GitHub Integration** — Sign in to see commit counts alongside coding hours
 
+## Install
+
+- **VS Code / Cursor / Antigravity:** Search `vibesync` in the Extensions panel (`Ctrl+Shift+X`) and look for **"VibeSync — AI Light Sync"** by `vibesynctech`
+- **Direct link:** [Install from VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights)
+- **Manual:** Download `.vsix` from [GitHub Releases](https://github.com/vibesynctech/vibesync/releases) → `Cmd+Shift+P` → "Install from VSIX"
+
+Extensions auto-update by default in VS Code. To make sure: Settings → search "auto update" → set **Extensions: Auto Update** to `true`.
+
 ## Quick Start
 
-1. Install the extension (VSIX or marketplace)
-2. Open the **VibeSync** sidebar (flame icon in the activity bar)
+1. Open the **VibeSync** sidebar (flame icon in the activity bar)
 3. Click the **gear icon** to open Settings
 4. Configure your Tapo light (IP, email, password) and click **Test Connection**
 5. Enable Screen Glow, Sound Effects, and Mascot as you like
