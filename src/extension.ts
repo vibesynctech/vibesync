@@ -47,7 +47,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   // Sound player — coupled with LightOrchestrator for perfect sync
   const soundsDir = vscode.Uri.joinPath(context.globalStorageUri, 'sounds');
   void vscode.workspace.fs.createDirectory(soundsDir);
-  const soundPlayer = new SoundPlayer(context.extensionPath, context.globalStorageUri.fsPath);
+  const soundPlayer = new SoundPlayer(context);
   orchestrator.setSoundPlayer(soundPlayer);
 
   // Screen glow — software alternative to physical RGB lights
