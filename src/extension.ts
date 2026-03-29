@@ -183,6 +183,12 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     await vscode.window.showTextDocument(doc);
   });
 
+  const diagnoseCmd = vscode.commands.registerCommand('vibeSync.diagnose', async () => {
+    const info = claudeCodeSignal.getDiagnostics();
+    const doc = await vscode.workspace.openTextDocument({ content: info, language: 'text' });
+    await vscode.window.showTextDocument(doc);
+  });
+
   const settingsProvider = new SettingsViewProvider(
     // Test connection callback
     async (ip, email, password, hue, sat) => {
@@ -240,7 +246,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   context.subscriptions.push(
     editorSignals, velocitySignal, commandSignal, terminalSignal, logTailSignal, claudeCodeSignal,
     settingsWatcher, toggleCmd, testCmd, statusCmd, focusTimeCmd, seedDataCmd, clearDataCmd,
-    signInCmd, signOutCmd, debugGitHubCmd, openSettingsCmd, openGuideCmd,
+    signInCmd, signOutCmd, debugGitHubCmd, diagnoseCmd, openSettingsCmd, openGuideCmd,
     calendarViewReg, calendarProvider, activityTracker, githubService, syncService,
     {
       dispose: () => {

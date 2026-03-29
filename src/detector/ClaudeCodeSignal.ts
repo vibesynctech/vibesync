@@ -35,6 +35,7 @@ export class ClaudeCodeSignal implements vscode.Disposable {
   private prevSize = 0;
   private lineBuffer = '';
   private watchDisposable: (() => void) | null = null;
+  private cachedProjectDir: string | null = null;
 
   private agentSessionActive = false;
   private lastActivityTime = 0;
@@ -151,14 +152,20 @@ export class ClaudeCodeSignal implements vscode.Disposable {
     const projectDir = this.findProjectDir();
     if (!projectDir) {
       log('[ClaudeCode] Could not find Claude project directory. Detection disabled.');
-      return;
-    }
-
-    const jsonlFile = this.findLatestJsonlFile(projectDir);
-    if (jsonlFile) {
-      this.startWatching(jsonlFile);
+      void vscode.window.showWarningMessage(
+        'VibeSync: Could not detect Claude Code activity. Is Claude Code installed and have you opened a project folder?',
+        'Diagnose'
+      ).then(choice => {
+        if (choice === 'Diagnose') void vscode.commands.executeCommand('vibeSync.diagnose');
+      });
+      // Still set up polling so we can detect when Claude starts later
     } else {
-      log('[ClaudeCode] No JSONL session file found yet. Waiting for session...');
+      const jsonlFile = this.findLatestJsonlFile(projectDir);
+      if (jsonlFile) {
+        this.startWatching(jsonlFile);
+      } else {
+        log('[ClaudeCode] No JSONL session file found yet. Waiting for session...');
+      }
     }
 
     // Periodically check for new/rotated session files
@@ -195,6 +202,7 @@ export class ClaudeCodeSignal implements vscode.Disposable {
     this.releaseOwnership();
     this.jsonlFilePath = null;
     this.lineBuffer = '';
+    this.cachedProjectDir = null;
   }
 
   dispose(): void {
@@ -540,15 +548,162 @@ export class ClaudeCodeSignal implements vscode.Disposable {
         .replace(/[:\\/_ ]/g, '-');                                              // all separators → dash
   }
 
+  /**
+   * Three-tier project directory discovery:
+   * Tier 1: Exact slug match (fast path)
+   * Tier 2: Fuzzy match — case-insensitive + segment scoring
+   * Tier 3: Global fallback — most recently active project
+   */
   private findProjectDir(): string | null {
+    // Cache hit — verify still exists
+    if (this.cachedProjectDir && fs.existsSync(this.cachedProjectDir)) {
+      return this.cachedProjectDir;
+    }
+    this.cachedProjectDir = null;
+
+    const projectsRoot = path.join(os.homedir(), '.claude', 'projects');
+    if (!fs.existsSync(projectsRoot)) {
+      log('[ClaudeCode] ~/.claude/projects/ not found. Is Claude Code installed?');
+      return null;
+    }
+
     const slug = this.deriveProjectSlug();
-    if (!slug) return null;
 
-    const projectDir = path.join(os.homedir(), '.claude', 'projects', slug);
-    if (fs.existsSync(projectDir)) return projectDir;
+    // Tier 1: Exact slug match
+    if (slug) {
+      const exactDir = path.join(projectsRoot, slug);
+      if (fs.existsSync(exactDir)) {
+        log(`[ClaudeCode] Tier 1: Exact slug match → ${slug}`);
+        this.cachedProjectDir = exactDir;
+        return exactDir;
+      }
+    }
 
-    log(`[ClaudeCode] Project dir not found: ${projectDir}`);
+    // Tier 2: Fuzzy match — score all directories by segment overlap
+    const matched = this.fuzzyMatchProjectDir(projectsRoot, slug);
+    if (matched) {
+      log(`[ClaudeCode] Tier 2: Fuzzy match → ${path.basename(matched)}`);
+      this.cachedProjectDir = matched;
+      return matched;
+    }
+
+    // Tier 3: Most recently active project (any project)
+    const fallback = this.findMostRecentProjectDir(projectsRoot);
+    if (fallback) {
+      log(`[ClaudeCode] Tier 3: Global fallback → ${path.basename(fallback)}`);
+      this.cachedProjectDir = fallback;
+      return fallback;
+    }
+
+    log('[ClaudeCode] No Claude project directory found across all tiers.');
     return null;
+  }
+
+  private fuzzyMatchProjectDir(projectsRoot: string, slug: string | null): string | null {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders || workspaceFolders.length === 0) return null;
+
+    const workspacePath = workspaceFolders[0].uri.fsPath;
+    const folderName = path.basename(workspacePath).toLowerCase();
+    const segments = workspacePath
+      .split(/[\\/]/)
+      .filter(s => s && !s.match(/^[a-zA-Z]:$/))
+      .map(s => s.toLowerCase());
+
+    let dirs: string[];
+    try {
+      dirs = fs.readdirSync(projectsRoot).filter(d => {
+        try { return fs.statSync(path.join(projectsRoot, d)).isDirectory(); } catch { return false; }
+      });
+    } catch { return null; }
+
+    // Case-insensitive exact slug match
+    if (slug) {
+      const ciMatch = dirs.find(d => d.toLowerCase() === slug.toLowerCase());
+      if (ciMatch) return path.join(projectsRoot, ciMatch);
+    }
+
+    // Score by segment overlap — require workspace folder name present
+    let bestDir: string | null = null;
+    let bestScore = 0;
+
+    for (const dir of dirs) {
+      const dirLower = dir.toLowerCase();
+      if (!dirLower.includes(folderName)) continue;
+
+      let score = 0;
+      for (const seg of segments) {
+        if (dirLower.includes(seg)) score++;
+      }
+
+      // Bonus: has .jsonl files (actually usable)
+      try {
+        const hasJsonl = fs.readdirSync(path.join(projectsRoot, dir)).some(f => f.endsWith('.jsonl'));
+        if (hasJsonl) score += 2;
+      } catch { /* skip */ }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestDir = dir;
+      }
+    }
+
+    return bestDir ? path.join(projectsRoot, bestDir) : null;
+  }
+
+  private findMostRecentProjectDir(projectsRoot: string): string | null {
+    try {
+      const dirs = fs.readdirSync(projectsRoot).filter(d => {
+        try { return fs.statSync(path.join(projectsRoot, d)).isDirectory() && !d.startsWith('.'); } catch { return false; }
+      });
+
+      let bestDir: string | null = null;
+      let bestMtime = 0;
+
+      for (const dir of dirs) {
+        const dirPath = path.join(projectsRoot, dir);
+        try {
+          const jsonlFiles = fs.readdirSync(dirPath).filter(f => f.endsWith('.jsonl'));
+          for (const f of jsonlFiles) {
+            const mtime = fs.statSync(path.join(dirPath, f)).mtimeMs;
+            if (mtime > bestMtime) {
+              bestMtime = mtime;
+              bestDir = dir;
+            }
+          }
+        } catch { /* skip */ }
+      }
+
+      return bestDir ? path.join(projectsRoot, bestDir) : null;
+    } catch { return null; }
+  }
+
+  public getDiagnostics(): string {
+    const slug = this.deriveProjectSlug();
+    const projectsRoot = path.join(os.homedir(), '.claude', 'projects');
+    const rootExists = fs.existsSync(projectsRoot);
+    let dirs: string[] = [];
+    if (rootExists) {
+      try { dirs = fs.readdirSync(projectsRoot).filter(d => !d.startsWith('.')); } catch { /* */ }
+    }
+
+    const lines = [
+      '=== VibeSync Claude Code Diagnostics ===',
+      '',
+      `Platform: ${process.platform}`,
+      `Editor: ${vscode.env.appName}`,
+      `Workspace: ${vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? '(none)'}`,
+      `Derived slug: ${slug ?? '(null — no workspace folder)'}`,
+      '',
+      `~/.claude/projects/ exists: ${rootExists}`,
+      `Cached project dir: ${this.cachedProjectDir ?? '(none)'}`,
+      `Currently watching: ${this.jsonlFilePath ?? '(none)'}`,
+      `Agent session active: ${this.agentSessionActive}`,
+      '',
+      `Project directories (${dirs.length}):`,
+      ...dirs.map(d => `  ${d}${d === path.basename(this.cachedProjectDir ?? '') ? ' ← MATCHED' : ''}`),
+    ];
+    return lines.join('\n');
   }
 
   private findLatestJsonlFile(projectDir: string): string | null {

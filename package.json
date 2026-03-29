@@ -1,5 +1,5 @@
 {
-  "name": "vibesync-lights",
+  "name": "vibesync",
   "displayName": "VibeSync — AI Light Sync",
   "description": "Sync your room lights with your AI coding assistant state. Supports Tapo, Yeelight, LIFX, Govee, and Philips Hue.",
   "version": "1.0.4",
@@ -74,6 +74,10 @@
       {
         "command": "vibeSync.debugGitHub",
         "title": "VibeSync: Debug GitHub (Diagnostic)"
+      },
+      {
+        "command": "vibeSync.diagnose",
+        "title": "VibeSync: Diagnose Claude Code Detection"
       },
       {
         "command": "vibeSync.openSettings",
