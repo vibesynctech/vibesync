@@ -91,27 +91,57 @@ export class ScreenGlowController implements ILightController {
   }
 
   private async clearGlow(): Promise<void> {
-    const config = vscode.workspace.getConfiguration('workbench');
-    const current = config.get<Record<string, string>>('colorCustomizations') || {};
-    const restored = { ...current };
-
-    for (const key of ScreenGlowController.GLOW_KEYS) {
-      if (key in this.originalColors) {
-        restored[key] = this.originalColors[key];
-      } else {
-        delete restored[key];
-      }
-    }
-
-    // If restored is empty, set to undefined to remove the key entirely
-    const hasKeys = Object.keys(restored).length > 0;
-    const value = hasKeys ? restored : undefined;
-    try {
-      await config.update('colorCustomizations', value, vscode.ConfigurationTarget.Workspace);
-    } catch {
+    // Clean up from BOTH workspace and global to ensure no leftover glow colors.
+    // applyGlow() may have written to either target via fallback.
+    for (const target of [vscode.ConfigurationTarget.Workspace, vscode.ConfigurationTarget.Global]) {
       try {
-        await config.update('colorCustomizations', value, vscode.ConfigurationTarget.Global);
-      } catch { /* ignore */ }
+        const config = vscode.workspace.getConfiguration('workbench');
+        const current = config.inspect<Record<string, string>>('colorCustomizations');
+        const colors = target === vscode.ConfigurationTarget.Workspace
+          ? (current?.workspaceValue ?? {})
+          : (current?.globalValue ?? {});
+        if (!colors || Object.keys(colors).length === 0) continue;
+
+        const restored = { ...colors };
+        let changed = false;
+        for (const key of ScreenGlowController.GLOW_KEYS) {
+          if (key in restored) {
+            if (key in this.originalColors) {
+              restored[key] = this.originalColors[key];
+            } else {
+              delete restored[key];
+            }
+            changed = true;
+          }
+        }
+        if (!changed) continue;
+
+        const hasKeys = Object.keys(restored).length > 0;
+        await config.update('colorCustomizations', hasKeys ? restored : undefined, target);
+      } catch { /* target not available — skip */ }
+    }
+  }
+
+  /** Force-remove all glow keys from both workspace and global config */
+  static async resetAllGlow(): Promise<void> {
+    for (const target of [vscode.ConfigurationTarget.Workspace, vscode.ConfigurationTarget.Global]) {
+      try {
+        const config = vscode.workspace.getConfiguration('workbench');
+        const current = config.inspect<Record<string, string>>('colorCustomizations');
+        const colors = target === vscode.ConfigurationTarget.Workspace
+          ? { ...(current?.workspaceValue ?? {}) }
+          : { ...(current?.globalValue ?? {}) };
+        if (!colors || Object.keys(colors).length === 0) continue;
+
+        let changed = false;
+        for (const key of ScreenGlowController.GLOW_KEYS) {
+          if (key in colors) { delete colors[key]; changed = true; }
+        }
+        if (!changed) continue;
+
+        const hasKeys = Object.keys(colors).length > 0;
+        await config.update('colorCustomizations', hasKeys ? colors : undefined, target);
+      } catch { /* skip */ }
     }
   }
 }

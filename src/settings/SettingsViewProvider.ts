@@ -89,6 +89,14 @@ export class SettingsViewProvider {
         if (this.panel) {
           void this.panel.webview.postMessage({ type: 'glowTestResult', success: ok });
         }
+      } else if (msg.type === 'resetGlow') {
+        try {
+          const { ScreenGlowController } = await import('../lights/ScreenGlowController.js');
+          await ScreenGlowController.resetAllGlow();
+        } catch { /* ignore */ }
+        if (this.panel) {
+          void this.panel.webview.postMessage({ type: 'glowResetResult' });
+        }
       } else if (msg.type === 'saveCustomTheme') {
         await this.settings.addCustomTheme(msg.theme as CustomThemeConfig);
         // Activate the saved theme
@@ -526,9 +534,10 @@ export class SettingsViewProvider {
         <span class="toggle-thumb"></span>
       </label>
     </div>
-    <div style="margin-top:10px">
+    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
       <button class="btn" onclick="testGlow()" id="testGlowBtn" style="font-size:11px;padding:6px 14px">⚡ Test Glow</button>
-      <span id="glowTestResult" style="font-size:10px;margin-left:8px;opacity:0.6"></span>
+      <button class="btn" onclick="resetGlow()" id="resetGlowBtn" style="font-size:11px;padding:6px 14px;opacity:0.7">🔄 Reset Colors</button>
+      <span id="glowTestResult" style="font-size:10px;opacity:0.6"></span>
     </div>
     <div style="font-size:10px;opacity:0.4;margin-top:8px">
       Changes VS Code's status bar and border colors based on AI state.<br>
@@ -727,6 +736,13 @@ export class SettingsViewProvider {
       btn.textContent = 'Testing...';
       result.textContent = '';
       vscode.postMessage({ type: 'testGlow' });
+    }
+
+    function resetGlow() {
+      var btn = document.getElementById('resetGlowBtn');
+      btn.disabled = true;
+      btn.textContent = 'Resetting...';
+      vscode.postMessage({ type: 'resetGlow' });
     }
 
     // ─── Theme Management ──────────────────────────────────────────
@@ -1400,6 +1416,14 @@ export class SettingsViewProvider {
           glowResult.style.color = '#f87171';
           glowResult.textContent = '✗ Glow failed — your editor may not support it.';
         }
+      }
+      if (msg.type === 'glowResetResult') {
+        var resetBtn = document.getElementById('resetGlowBtn');
+        var resetResult = document.getElementById('glowTestResult');
+        resetBtn.disabled = false;
+        resetBtn.textContent = '🔄 Reset Colors';
+        resetResult.style.color = '#4ade80';
+        resetResult.textContent = '✓ Colors restored to theme defaults.';
       }
       if (msg.type === 'customThemes') {
         customThemes = msg.themes;
