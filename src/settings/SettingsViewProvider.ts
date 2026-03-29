@@ -75,6 +75,20 @@ export class SettingsViewProvider {
         if (this.panel) {
           void this.panel.webview.postMessage({ type: 'connectionResult', success: ok });
         }
+      } else if (msg.type === 'testGlow') {
+        let ok = false;
+        try {
+          const { ScreenGlowController } = await import('../lights/ScreenGlowController.js');
+          const testGlow = new ScreenGlowController();
+          await testGlow.connect();
+          // Flash a bright blue glow for 3 seconds, then revert
+          await testGlow.setColor(220, 90, 80);
+          ok = true;
+          setTimeout(() => { testGlow.disconnect(); }, 3000);
+        } catch { ok = false; }
+        if (this.panel) {
+          void this.panel.webview.postMessage({ type: 'glowTestResult', success: ok });
+        }
       } else if (msg.type === 'saveCustomTheme') {
         await this.settings.addCustomTheme(msg.theme as CustomThemeConfig);
         // Activate the saved theme
@@ -512,6 +526,10 @@ export class SettingsViewProvider {
         <span class="toggle-thumb"></span>
       </label>
     </div>
+    <div style="margin-top:10px">
+      <button class="btn" onclick="testGlow()" id="testGlowBtn" style="font-size:11px;padding:6px 14px">⚡ Test Glow</button>
+      <span id="glowTestResult" style="font-size:10px;margin-left:8px;opacity:0.6"></span>
+    </div>
     <div style="font-size:10px;opacity:0.4;margin-top:8px">
       Changes VS Code's status bar and border colors based on AI state.<br>
       Works without physical RGB lights. Uses the same theme colors as your light.
@@ -700,6 +718,15 @@ export class SettingsViewProvider {
       var pw = document.getElementById('pwInput').value;
 
       vscode.postMessage({ type: 'testConnection', ip: ip, email: email, password: pw, hue: hsl.h, sat: hsl.s });
+    }
+
+    function testGlow() {
+      var btn = document.getElementById('testGlowBtn');
+      var result = document.getElementById('glowTestResult');
+      btn.disabled = true;
+      btn.textContent = 'Testing...';
+      result.textContent = '';
+      vscode.postMessage({ type: 'testGlow' });
     }
 
     // ─── Theme Management ──────────────────────────────────────────
@@ -1359,6 +1386,19 @@ export class SettingsViewProvider {
         } else {
           result.className = 'test-result fail';
           result.textContent = 'Connection failed — check IP and credentials';
+        }
+      }
+      if (msg.type === 'glowTestResult') {
+        var glowBtn = document.getElementById('testGlowBtn');
+        var glowResult = document.getElementById('glowTestResult');
+        glowBtn.disabled = false;
+        glowBtn.textContent = '⚡ Test Glow';
+        if (msg.success) {
+          glowResult.style.color = '#4ade80';
+          glowResult.textContent = '✓ Glow working! Borders flash blue for 3s.';
+        } else {
+          glowResult.style.color = '#f87171';
+          glowResult.textContent = '✗ Glow failed — your editor may not support it.';
         }
       }
       if (msg.type === 'customThemes') {

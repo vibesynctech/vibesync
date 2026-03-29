@@ -80,7 +80,14 @@ export class ScreenGlowController implements ILightController {
       'sideBar.border': dimHex,
       'panel.border': dimHex,
     };
-    await config.update('colorCustomizations', merged, vscode.ConfigurationTarget.Workspace);
+    // Try workspace-level first (scoped to this window), fall back to global
+    try {
+      await config.update('colorCustomizations', merged, vscode.ConfigurationTarget.Workspace);
+    } catch {
+      try {
+        await config.update('colorCustomizations', merged, vscode.ConfigurationTarget.Global);
+      } catch { /* glow not supported in this editor */ }
+    }
   }
 
   private async clearGlow(): Promise<void> {
@@ -98,11 +105,14 @@ export class ScreenGlowController implements ILightController {
 
     // If restored is empty, set to undefined to remove the key entirely
     const hasKeys = Object.keys(restored).length > 0;
-    await config.update(
-      'colorCustomizations',
-      hasKeys ? restored : undefined,
-      vscode.ConfigurationTarget.Workspace,
-    );
+    const value = hasKeys ? restored : undefined;
+    try {
+      await config.update('colorCustomizations', value, vscode.ConfigurationTarget.Workspace);
+    } catch {
+      try {
+        await config.update('colorCustomizations', value, vscode.ConfigurationTarget.Global);
+      } catch { /* ignore */ }
+    }
   }
 }
 
