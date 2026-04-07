@@ -9,11 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/AvYVmi5CBts">
-    <img src="https://img.youtube.com/vi/AvYVmi5CBts/maxresdefault.jpg" alt="Watch VibeSync Demo" width="720" />
-  </a>
-  <br />
-  <em>Click to watch the demo with sound</em>
+  <img src="media/demo.gif" alt="VibeSync Demo" width="720" />
 </p>
 
 <p align="center">
