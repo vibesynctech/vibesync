@@ -9,7 +9,11 @@
 </p>
 
 <p align="center">
-  <video src="media/demo.mp4" autoplay loop muted playsinline width="720"></video>
+  <a href="https://youtu.be/AvYVmi5CBts">
+    <img src="https://img.youtube.com/vi/AvYVmi5CBts/maxresdefault.jpg" alt="Watch VibeSync Demo" width="720" />
+  </a>
+  <br />
+  <em>Click to watch the demo with sound</em>
 </p>
 
 <p align="center">
