@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="vibesynclogo128.png" alt="VibeSync Logo" width="80" />
+  <img src="https://raw.githubusercontent.com/vibesynctech/vibesync/main/vibesynclogo128.png" alt="VibeSync Logo" width="80" />
 </p>
 
 <h1 align="center">VibeSync — AI Light Sync</h1>
@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <img src="media/demo.gif" alt="VibeSync Demo" width="720" />
+  <img src="https://raw.githubusercontent.com/vibesynctech/vibesync/main/media/demo.gif" alt="VibeSync Demo" width="720" />
 </p>
 
 <p align="center">
