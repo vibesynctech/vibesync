@@ -1,66 +1,81 @@
-# VibeSync
+<p align="center">
+  <img src="vibesynclogo128.png" alt="VibeSync Logo" width="80" />
+</p>
 
-**Sync your room lights, screen glow, sounds, and mascot animations with your AI coding assistant.**
+<h1 align="center">VibeSync — AI Light Sync</h1>
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
-![License](https://img.shields.io/badge/license-MIT-green)
-![VS Code](https://img.shields.io/badge/VS%20Code-Extension-purple)
+<p align="center">
+  <strong>Your room lights, screen glow, sounds, and mascot react to your AI coding assistant in real time.</strong>
+</p>
+
+<p align="center">
+  <video src="media/demo.mp4" autoplay loop muted playsinline width="720"></video>
+</p>
+
+<p align="center">
+  <a href="https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights"><img src="https://img.shields.io/visual-studio-marketplace/v/vibesynctech.vibesync-lights?label=VS%20Code%20Marketplace" alt="Version" /></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights"><img src="https://img.shields.io/visual-studio-marketplace/i/vibesynctech.vibesync-lights?label=Installs" alt="Installs" /></a>
+  <a href="https://open-vsx.org/extension/vibesynctech/vibesync"><img src="https://img.shields.io/open-vsx/dt/vibesynctech/vibesync?label=Open%20VSX" alt="Open VSX" /></a>
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
+</p>
 
 ---
 
-## What is VibeSync?
+## What It Does
 
-VibeSync is a VS Code extension that turns AI-assisted coding into an immersive experience. When your AI assistant thinks, writes code, or needs your attention — your room lights change color, sound effects play, your screen glows, and a cute mascot reacts.
+When your AI assistant **thinks**, **writes code**, or **needs your attention** — VibeSync makes your entire setup react:
 
-## Features
+| Feature | What happens |
+|---------|-------------|
+| **Smart Lights** | TP-Link Tapo lights change color with each AI state |
+| **Screen Glow** | Colored border pulses around your editor |
+| **Sound Effects** | Meme, anime, or clean sound packs play on state changes |
+| **Mascot** | Animated character reacts in the sidebar |
+| **Time Tracker** | Calendar heatmap, coding hours, commit counts, and daily notes |
+| **Themes** | 5 built-in themes + create your own custom color schemes |
 
-- **Smart Light Sync** — Physical lights (TP-Link Tapo) change color based on AI state
-- **Screen Glow** — Colored border around your editor that follows the AI's activity
-- **Sound Effects** — Fun sound packs (memes, anime, clean) with custom upload support
-- **Themes** — 5 built-in color themes + create your own custom themes
-- **Mascot Animations** — Animated Lottie character that reacts to AI states
-- **Time Tracker** — Calendar heatmap, daily coding hours, commit counts, and notes
-- **GitHub Integration** — Sign in to see commit counts alongside coding hours
+---
 
 ## Install
 
-- **VS Code:** Search `vibesync` in the Extensions panel (`Ctrl+Shift+X`) and look for **"VibeSync — AI Light Sync"** by `vibesynctech`
-- **VS Code Marketplace:** [Install directly](https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights)
-- **Antigravity / Cursor / Windsurf:** Search `vibesync` in Extensions — also available on [Open VSX](https://open-vsx.org/extension/vibesynctech/vibesync)
-- **Manual:** Download `.vsix` from [GitHub Releases](https://github.com/vibesynctech/vibesync/releases) → `Cmd+Shift+P` → "Install from VSIX"
+- **VS Code:** Search `vibesync` in Extensions (`Ctrl+Shift+X`) → look for **"VibeSync — AI Light Sync"** by `vibesynctech`
+- **[VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights)** — direct install link
+- **Antigravity / Cursor / Windsurf:** Search `vibesync` in Extensions — also on [Open VSX](https://open-vsx.org/extension/vibesynctech/vibesync)
 
-Extensions auto-update by default. To make sure: Settings → search "auto update" → set **Extensions: Auto Update** to `true`.
+---
 
 ## Quick Start
 
 1. Open the **VibeSync** sidebar (flame icon in the activity bar)
-3. Click the **gear icon** to open Settings
-4. Configure your Tapo light (IP, email, password) and click **Test Connection**
-5. Enable Screen Glow, Sound Effects, and Mascot as you like
-6. Start coding with Claude Code — watch everything come alive!
+2. Click the **gear icon** to open Settings
+3. Configure your Tapo light (IP, email, password) → click **Test Connection**
+4. Enable Screen Glow, Sound Effects, and Mascot as you like
+5. Start coding with Claude Code — watch everything come alive!
 
-New to the extension? Click the **book icon** in the sidebar for a full interactive Guide.
+New to the extension? Click the **book icon** in the sidebar for the interactive Guide.
+
+---
+
+## AI States
+
+| State | What's happening | Your setup reacts with |
+|-------|-----------------|----------------------|
+| **Idle** | Nothing happening | Calm static color |
+| **Thinking** | AI is reasoning | Pulsing light + sound |
+| **Editing** | AI is writing code | Color flash + sound |
+| **Waiting for Input** | AI needs your attention | Alert pulse + attention sound |
+| **Complete** | Task finished | Green pulse + completion sound |
+
+---
 
 ## Supported Hardware
 
 | Brand | Status |
 |-------|--------|
-| TP-Link Tapo L900-5 | Tested and working |
+| TP-Link Tapo (L900-5, L530, etc.) | Supported |
 | Philips Hue | Coming soon |
 | LIFX | Coming soon |
 | Other smart lights | Planned |
-
-## AI States
-
-The extension detects 5 states from your AI tool:
-
-| State | Description | Response |
-|-------|-------------|----------|
-| **Idle** | Nothing happening | Calm static color |
-| **Thinking** | AI is reasoning | Pulsing light + sound |
-| **Editing** | AI is writing code | Flash/color change + sound |
-| **Waiting for Input** | AI needs your attention | Alert pulse + attention sound |
-| **Complete** | AI finished the task | Green pulse + completion sound |
 
 ## AI Tool Support
 
@@ -70,13 +85,16 @@ The extension detects 5 states from your AI tool:
 | Cursor | Planned |
 | GitHub Copilot | Planned |
 | Windsurf | Planned |
-| Antigravity | Planned |
+
+---
 
 ## Known Limitations
 
-- **Light sync** only tested with TP-Link Tapo L900-5. Other Tapo models may work. Other brands are not yet supported.
-- **Sync accuracy** is not 100% — the complete state may briefly show during thinking, and takes a few seconds to reflect after the AI finishes.
-- **AI tool support** currently only works with Claude Code. Other tools are planned if there is demand.
+- **Light sync** only tested with TP-Link Tapo L900-5. Other Tapo models may work.
+- **Sync accuracy** is not 100% — state detection may briefly lag by a few seconds.
+- **AI tool support** currently only works with Claude Code. Other tools are planned.
+
+---
 
 ## Contributing
 
@@ -87,8 +105,6 @@ We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 [MIT](LICENSE)
 
 ## Contact
-
-Have questions, want to collaborate, or interested in hiring? Reach out:
 
 - **Email:** himmu1144@gmail.com
 - **GitHub Issues:** [Report a bug or request a feature](https://github.com/vibesynctech/vibesync/issues)
