@@ -53,6 +53,8 @@ When your AI assistant **thinks**, **writes code**, or **needs your attention** 
 
 New to the extension? Click the **book icon** in the sidebar for the interactive Guide.
 
+> **No RGB lights? No problem.** Screen glow, sound effects, and mascot animations work on their own — no smart lights needed to vibe.
+
 ---
 
 ## AI States

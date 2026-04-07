@@ -907,7 +907,7 @@ export class CalendarViewProvider implements vscode.WebviewViewProvider, vscode.
       '',
       'var noteViewEl = document.getElementById("noteView");',
       'if (rawNote) { noteViewEl.innerHTML = renderMarkdown(rawNote); }',
-      'else { noteViewEl.textContent = "No notes for this day..."; }',
+      'else { noteViewEl.innerHTML = "No notes for this day...<br><span style=\\"opacity:0.8;font-size:9px\\">Tip: Sound effects can be turned off in Settings</span>"; }',
       '',
       'function nav(y, m) { vscode.postMessage({ type: "navigate", year: y, month: m }); }',
       'function selectDay(dk) { vscode.postMessage({ type: "selectDay", dayKey: dk }); }',
