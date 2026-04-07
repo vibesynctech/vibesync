@@ -14,7 +14,6 @@
 
 <p align="center">
   <a href="https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights"><img src="https://img.shields.io/visual-studio-marketplace/v/vibesynctech.vibesync-lights?label=VS%20Code%20Marketplace" alt="Version" /></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=vibesynctech.vibesync-lights"><img src="https://img.shields.io/visual-studio-marketplace/i/vibesynctech.vibesync-lights?label=Installs" alt="Installs" /></a>
   <a href="https://open-vsx.org/extension/vibesynctech/vibesync"><img src="https://img.shields.io/open-vsx/dt/vibesynctech/vibesync?label=Open%20VSX" alt="Open VSX" /></a>
   <img src="https://img.shields.io/badge/license-MIT-green" alt="License" />
 </p>
